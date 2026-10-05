@@ -13,20 +13,14 @@ import {
   HiOutlineUserGroup,
   HiChartPie,
 } from 'react-icons/hi';
-import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SignOutButton, useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 
 export default function DashSidebar() {
-  const [tab, setTab] = useState('');
   const searchParams = useSearchParams();
+  const tab = searchParams.get('tab') || '';
   const { user, isSignedIn } = useUser();
-
-  useEffect(() => {
-    const tabFromUrl = searchParams.get('tab');
-    if (tabFromUrl) setTab(tabFromUrl);
-  }, [searchParams]);
 
   if (!isSignedIn) return null;
 
@@ -36,7 +30,11 @@ export default function DashSidebar() {
         <SidebarItemGroup className="flex flex-col gap-1">
           {user?.publicMetadata?.isAdmin && (
             <Link href="/dashboard?tab=dash">
-              <SidebarItem active={tab === 'dash' || !tab} icon={HiChartPie} as="div">
+              <SidebarItem
+                active={tab === 'dash' || !tab}
+                icon={HiChartPie}
+                as="div"
+              >
                 Dashboard
               </SidebarItem>
             </Link>
@@ -56,7 +54,11 @@ export default function DashSidebar() {
 
           {user?.publicMetadata?.isAdmin && (
             <Link href="/dashboard?tab=posts">
-              <SidebarItem active={tab === 'posts'} icon={HiDocumentText} as="div">
+              <SidebarItem
+                active={tab === 'posts'}
+                icon={HiDocumentText}
+                as="div"
+              >
                 Posts
               </SidebarItem>
             </Link>
@@ -64,13 +66,21 @@ export default function DashSidebar() {
 
           {user?.publicMetadata?.isAdmin && (
             <Link href="/dashboard?tab=users">
-              <SidebarItem active={tab === 'users'} icon={HiOutlineUserGroup} as="div">
+              <SidebarItem
+                active={tab === 'users'}
+                icon={HiOutlineUserGroup}
+                as="div"
+              >
                 Users
               </SidebarItem>
             </Link>
           )}
 
-          <SidebarItem icon={HiArrowSmRight} className="cursor-pointer" as="div">
+          <SidebarItem
+            icon={HiArrowSmRight}
+            className="cursor-pointer"
+            as="div"
+          >
             <SignOutButton />
           </SidebarItem>
         </SidebarItemGroup>

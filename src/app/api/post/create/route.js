@@ -23,7 +23,7 @@ export const POST = async (req) => {
       .replace(/[^a-zA-Z0-9-]/g, '');
 
     const newPost = await Post.create({
-      userId: data.userMongoId || user.publicMetadata.userMongoId || user.id,
+      userId: user.publicMetadata.userMongoId || user.id,
       content: data.content,
       title: data.title,
       image: data.image,

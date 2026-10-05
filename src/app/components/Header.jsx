@@ -16,9 +16,9 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { UserButton, useUser } from '@clerk/nextjs';
 import { dark, light } from '@clerk/themes';
-import { useEffect, useState } from 'react';
-import { Inter } from 'next/font/google';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 
+const emptySubscribe = () => () => {};
 
 export default function Header() {
   const path = usePathname();
@@ -28,22 +28,26 @@ export default function Header() {
   const { resolvedTheme, setTheme } = useTheme();
   const { isSignedIn } = useUser();
 
-  const [mounted, setMounted] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
+  const [searchTerm, setSearchTerm] = useState(
+    () => searchParams.get('searchTerm') || ''
+  );
+
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    const searchTermFromUrl = searchParams.get('searchTerm') || '';
 
-  useEffect(() => {
-    const searchTermFromUrl = searchParams.get('searchTerm');
-
-    if (searchTermFromUrl) {
+    const timeout = setTimeout(() => {
       setSearchTerm(searchTermFromUrl);
-    } else {
-      setSearchTerm('');
-    }
+    }, 0);
+
+    return () => clearTimeout(timeout);
   }, [searchParams]);
 
   const handleSubmit = (e) => {
@@ -66,33 +70,33 @@ export default function Header() {
   return (
     <header className='border-b border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200'>
       <Navbar fluid className='!bg-transparent'>
-<Link
-  href='/'
-  className='group flex items-center gap-3 whitespace-nowrap'
->
-  <div
-    className='rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500
-    px-3 py-1 text-white font-bold shadow-md
-    transition-all duration-300
-    group-hover:scale-105 group-hover:shadow-xl'
-  >
-    DF
-  </div>
+        <Link
+          href='/'
+          className='group flex items-center gap-3 whitespace-nowrap'
+        >
+          <div
+            className='rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500
+            px-3 py-1 font-bold text-white shadow-md
+            transition-all duration-300
+            group-hover:scale-105 group-hover:shadow-xl'
+          >
+            DF
+          </div>
 
-  <span
-    className='text-xl font-black tracking-tight
-    transition-all duration-300
-    group-hover:bg-gradient-to-r
-    group-hover:from-indigo-500
-    group-hover:via-purple-500
-    group-hover:to-pink-500
-    group-hover:bg-clip-text
-    group-hover:text-transparent'
-  >
-    Dawid.dev
-  </span>
-</Link>
-        {/* Desktop search */}
+          <span
+            className='text-xl font-black tracking-tight
+            transition-all duration-300
+            group-hover:bg-gradient-to-r
+            group-hover:from-indigo-500
+            group-hover:via-purple-500
+            group-hover:to-pink-500
+            group-hover:bg-clip-text
+            group-hover:text-transparent'
+          >
+            Dawid.dev
+          </span>
+        </Link>
+
         <form
           onSubmit={handleSubmit}
           className='hidden items-center gap-2 lg:flex'
@@ -113,7 +117,6 @@ export default function Header() {
         </form>
 
         <div className='flex gap-2 md:order-2'>
-          {/* Mobile search button */}
           <Button
             className='h-10 w-12 lg:hidden'
             color='gray'
@@ -123,7 +126,6 @@ export default function Header() {
             <AiOutlineSearch />
           </Button>
 
-          {/* Theme button visible on mobile too */}
           <Button
             className='h-10 w-12'
             color='gray'
@@ -154,7 +156,6 @@ export default function Header() {
           <NavbarToggle />
         </div>
 
-        {/* Mobile search input */}
         {showMobileSearch && (
           <form
             onSubmit={handleSubmit}

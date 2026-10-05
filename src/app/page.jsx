@@ -14,8 +14,8 @@ export default function Home() {
         </h1>
 
         <p className='text-gray-500 text-lg max-w-3xl'>
-          Welcome to my corner of the internet. Here I share projects I've
-          built, challenges I've solved, and lessons learned while working
+          Welcome to my corner of the internet. Here I share projects I&apos;ve
+          built, challenges I&apos;ve solved, and lessons learned while working
           with React, Next.js, TypeScript, and modern web technologies.
         </p>
 

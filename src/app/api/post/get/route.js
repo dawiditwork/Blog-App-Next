@@ -11,8 +11,8 @@ export const POST = async (req) => {
 
     const data = await req.json();
 
-    const startIndex = parseInt(data.startIndex) || 0;
-    const limit = parseInt(data.limit) || 9;
+    const startIndex = Math.max(parseInt(data.startIndex) || 0, 0);
+    const limit = Math.min(Math.max(parseInt(data.limit) || 9, 1), 50);
     const sortDirection = data.order === 'asc' ? 1 : -1;
 
     const query = {

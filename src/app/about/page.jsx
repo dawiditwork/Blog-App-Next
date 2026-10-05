@@ -35,7 +35,7 @@ export default function About() {
         {/* Hero */}
         <div className='mb-16'>
           <h1 className='text-5xl font-black mb-4'>
-            Hi, I'm Dawid 👋
+            Hi, I&apos;m Dawid 👋
           </h1>
 
           <p className='text-xl text-gray-400 max-w-3xl'>

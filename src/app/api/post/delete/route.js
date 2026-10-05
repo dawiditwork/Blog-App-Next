@@ -1,12 +1,12 @@
 import Post from '../../../../lib/models/post.model';
 import { connect } from '../../../../lib/mongodb/mongoose';
-import { auth } from '@clerk/nextjs/server';
+import { currentUser } from '@clerk/nextjs/server';
 
 export const DELETE = async (req) => {
   try {
-    const { userId } = await auth();
+    const user = await currentUser();
 
-    if (!userId) {
+    if (!user || user.publicMetadata.isAdmin !== true) {
       return new Response(
         JSON.stringify({
           message: 'Unauthorized',
@@ -19,7 +19,16 @@ export const DELETE = async (req) => {
 
     const data = await req.json();
 
-    await Post.findByIdAndDelete(data.postId);
+    const deletedPost = await Post.findByIdAndDelete(data.postId);
+
+    if (!deletedPost) {
+      return new Response(
+        JSON.stringify({
+          message: 'Post not found',
+        }),
+        { status: 404 }
+      );
+    }
 
     return new Response(
       JSON.stringify({

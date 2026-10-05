@@ -8,33 +8,23 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import PostCard from '../components/PostCard';
 
 function SearchContent() {
-  const [sidebarData, setSidebarData] = useState({
-    searchTerm: '',
-    sort: 'desc',
-    category: 'uncategorized',
-  });
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const [sidebarData, setSidebarData] = useState(() => ({
+    searchTerm: searchParams.get('searchTerm') || '',
+    sort: searchParams.get('sort') || 'desc',
+    category: searchParams.get('category') || 'uncategorized',
+  }));
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showMore, setShowMore] = useState(false);
 
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
   useEffect(() => {
-    const urlParams = new URLSearchParams(searchParams);
-
-    const searchTermFromUrl = urlParams.get('searchTerm');
-    const sortFromUrl = urlParams.get('sort');
-    const categoryFromUrl = urlParams.get('category');
-
-    if (searchTermFromUrl || sortFromUrl || categoryFromUrl) {
-      setSidebarData({
-        searchTerm: searchTermFromUrl || '',
-        sort: sortFromUrl || 'desc',
-        category: categoryFromUrl || 'uncategorized',
-      });
-    }
+    const searchTermFromUrl = searchParams.get('searchTerm');
+    const sortFromUrl = searchParams.get('sort');
+    const categoryFromUrl = searchParams.get('category');
 
     const fetchPosts = async () => {
       setLoading(true);
@@ -61,38 +51,19 @@ function SearchContent() {
 
       setPosts(data.posts);
       setLoading(false);
-
-      if (data.posts.length === 9) {
-        setShowMore(true);
-      } else {
-        setShowMore(false);
-      }
+      setShowMore(data.posts.length === 9);
     };
 
     fetchPosts();
   }, [searchParams]);
 
   const handleChange = (e) => {
-    if (e.target.id === 'searchTerm') {
-      setSidebarData({
-        ...sidebarData,
-        searchTerm: e.target.value,
-      });
-    }
+    const { id, value } = e.target;
 
-    if (e.target.id === 'sort') {
-      setSidebarData({
-        ...sidebarData,
-        sort: e.target.value || 'desc',
-      });
-    }
-
-    if (e.target.id === 'category') {
-      setSidebarData({
-        ...sidebarData,
-        category: e.target.value || 'uncategorized',
-      });
-    }
+    setSidebarData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -130,13 +101,8 @@ function SearchContent() {
 
     const data = await res.json();
 
-    setPosts([...posts, ...data.posts]);
-
-    if (data.posts.length === 9) {
-      setShowMore(true);
-    } else {
-      setShowMore(false);
-    }
+    setPosts((prev) => [...prev, ...data.posts]);
+    setShowMore(data.posts.length === 9);
   };
 
   return (
@@ -160,7 +126,11 @@ function SearchContent() {
           <div className='flex items-center gap-2'>
             <label className='font-semibold'>Sort:</label>
 
-            <Select onChange={handleChange} id='sort'>
+            <Select
+              onChange={handleChange}
+              id='sort'
+              value={sidebarData.sort}
+            >
               <option value='desc'>Latest</option>
               <option value='asc'>Oldest</option>
             </Select>
@@ -169,7 +139,11 @@ function SearchContent() {
           <div className='flex items-center gap-2'>
             <label className='font-semibold'>Category:</label>
 
-            <Select onChange={handleChange} id='category'>
+            <Select
+              onChange={handleChange}
+              id='category'
+              value={sidebarData.category}
+            >
               <option value='uncategorized'>Uncategorized</option>
               <option value='reactjs'>React.js</option>
               <option value='nextjs'>Next.js</option>
@@ -185,8 +159,13 @@ function SearchContent() {
 
       <main className='min-w-0 flex-1 px-5 py-10 sm:px-8'>
         <div className='mb-8'>
-          <p className='text-sm font-bold uppercase tracking-[0.18em] text-teal-500'>Explore the blog</p>
-          <h1 className='mt-2 text-3xl font-black tracking-tight'>Search results</h1>
+          <p className='text-sm font-bold uppercase tracking-[0.18em] text-teal-500'>
+            Explore the blog
+          </p>
+
+          <h1 className='mt-2 text-3xl font-black tracking-tight'>
+            Search results
+          </h1>
         </div>
 
         <div className='grid gap-5'>
@@ -199,7 +178,6 @@ function SearchContent() {
           )}
 
           {!loading &&
-            posts &&
             posts.map((post) => (
               <PostCard key={post._id} post={post} compact />
             ))}

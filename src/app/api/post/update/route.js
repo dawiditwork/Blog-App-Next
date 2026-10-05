@@ -35,9 +35,10 @@ export const PUT = async (req) => {
       status: 200,
     });
   } catch (error) {
-    console.log('Error creating post:', error);
-    return new Response('Error creating post', {
-      status: 500,
-    });
+   console.log('Error updating post:', error);
+
+    return new Response('Error updating post', {
+  status: 500,
+});
   }
 };
